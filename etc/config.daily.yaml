@@ -1,0 +1,4 @@
+env: 2
+logging: false
+log_levels: [info, warn, error]
+log_stdio: false

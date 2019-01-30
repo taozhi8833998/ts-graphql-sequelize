@@ -1,0 +1,13 @@
+node_modules
+coverage
+.DS_Store
+*.log
+logs
+run
+out
+.rsyncignore
+.gitignore
+.git
+.dockerignore
+makefile
+.vscode

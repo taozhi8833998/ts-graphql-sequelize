@@ -1,0 +1,1 @@
+# Api Boilerplate Using typescript, graphql and sequelize

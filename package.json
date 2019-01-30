@@ -1,0 +1,62 @@
+{
+  "name": "ts-graphql-sequelize",
+  "version": "0.0.1",
+  "description": "write api by typescript, graphql and sequelize",
+  "main": "index.js",
+  "scripts": {
+    "test": "nyc mocha",
+    "lint": "tslint -p ./tsconfig.json -c ./tslint.json './src/**/*.ts'",
+    "build": "rm -rf lib && npm run lint && tsc",
+    "cover": "npm run lint && nyc report --reporter=text-lcov | coveralls"
+  },
+  "pre-commit": "test",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taozhi8833998/ts-graphql-sequelize.git"
+  },
+  "keywords": [
+    "api",
+    "typescript",
+    "graphql",
+    "sequelize"
+  ],
+  "author": "taozhi8833998 <taozhi8833998@163.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/taozhi8833998/ts-graphql-sequelize/issues"
+  },
+  "homepage": "https://github.com/taozhi8833998/ts-graphql-sequelize#readme",
+  "devDependencies": {
+    "@types/js-yaml": "^3.12.0",
+    "@types/lodash": "^4.14.120",
+    "@types/node": "^10.12.19",
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.2",
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
+    "pre-commit": "^1.2.2",
+    "tslint": "^5.12.1",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-immutable": "^5.1.2",
+    "typescript": "^3.2.4"
+  },
+  "dependencies": {
+    "apollo-server-express": "^2.3.3",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
+    "boom": "^7.3.0",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.5",
+    "cryptiles": "^4.1.3",
+    "express": "^4.16.4",
+    "graphql": "^14.1.1",
+    "helmet": "^3.15.0",
+    "js-yaml": "^3.12.1",
+    "jsonwebtoken": "^8.4.0",
+    "lodash": "^4.17.11",
+    "merge-graphql-schemas": "^1.5.8",
+    "mysql2": "^1.6.4",
+    "sequelize": "^4.42.0",
+    "serve-favicon": "^2.5.0"
+  }
+}
