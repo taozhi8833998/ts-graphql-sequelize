@@ -29,4 +29,4 @@ const getRuntimeEnv: () => object = () => {
 
 const etc: object = _.merge({}, defaultEtc, getEnvCfg(), getRuntimeEnv())
 
-export default etc
+export default etc as any

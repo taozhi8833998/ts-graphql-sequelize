@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "noImplicitAny": true,
     "declaration": true,
     "outDir": "./lib",
     "strict": true,
     "typeRoots": [
-      "./node_modules/@types"
+      "./node_modules/@types",
     ]
   },
   "include": [

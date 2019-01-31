@@ -8,7 +8,7 @@ try {
 }
 
 const path = require('path')
-const etc = require('../src/etc').default
+const etc = require('../lib/etc').default
 
 const cwd = path.join(__dirname, '../')
 const config = {
