@@ -6,6 +6,11 @@
     "declaration": true,
     "outDir": "./lib",
     "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "es6",
+      "esnext.asynciterable"
+    ],
     "typeRoots": [
       "./node_modules/@types",
     ]

@@ -1,4 +1,4 @@
-import { ApolloServer } from 'apollo-server-express'
+import { ApolloServer, gql } from 'apollo-server-express'
 import * as bodyParser from 'body-parser'
 import * as Boom from 'boom'
 import * as cookieParser from 'cookie-parser'
@@ -10,10 +10,11 @@ import * as serveFavicon from 'serve-favicon'
 import { createLog } from '../common/log'
 import * as utils from '../common/utils'
 import etc from '../etc'
-import * as db from '../models'
-import * as resolvers from '../resolvers'
-import * as typeDefs from '../schemes'
+import models from '../models'
+import resolvers from '../resolvers'
+import schemas from '../schemas'
 
+const db = models
 const app = express()
 const log = createLog('app')
 const corsOptions = {
@@ -71,11 +72,11 @@ const server = new ApolloServer({
     }
   },
   formatError(error: Error) {
-    log.error('GraphQL Error = ', JSON.stringify(error, null, 2))
+    log.error('GraphQL Error = %s', JSON.stringify(error, null, 2))
     return { message: error.message }
   },
   resolvers,
-  typeDefs,
+  typeDefs: gql(schemas),
 
 })
 server.applyMiddleware({ app, cors: corsOptions })
@@ -89,7 +90,7 @@ app.use((_, res: express.Response) => {
 })
 
 app.listen(etc.http_port, etc.bind_host || '0.0.0.0', (err: Error) => {
-  if (err) log.error('Server started failed')
+  if (err) log.error('Server started failed: %o', err)
   const host = etc.bind_host || '0.0.0.0'
   const port = etc.http_port
   if (etc.bind_host) {

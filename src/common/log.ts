@@ -13,7 +13,7 @@ const myFormat = winston.format.printf(
   info => `${mo(info.timestamp).format('YYYY-MM-DD HH:mm:ss')} ${info.level}: ${info.message}`)
 
 const createConsoleLog = (name: string) => {
-  const levels = log_levels
+  const level = 'debug'
   const transport = new winston.transports.Console()
   const format = winston.format.combine(
     winston.format.timestamp(),
@@ -22,11 +22,11 @@ const createConsoleLog = (name: string) => {
     winston.format.colorize(),
     myFormat,
   )
-  return { levels, transport, format }
+  return { level, transport, format }
 }
 
 const createFileLog = (name: string) => {
-  const levels = log_levels
+  const level = 'info'
   const transport = new (winston.transports as any).DailyRotateFile({
     datePattern: 'YYYY-MM-DD',
     dirname: log_folder,
@@ -41,16 +41,16 @@ const createFileLog = (name: string) => {
     winston.format.simple(),
     myFormat,
   )
-  return { levels, transport, format }
+  return { level, transport, format }
 }
 
 const createLog = (name: string) => {
   if (logs[name]) return logs[name]
-  const { format, levels, transport } = log_stdio &&
+  const { format, level, transport } = log_stdio &&
    createConsoleLog(name) || createFileLog(name)
   const opt = {
     format,
-    levels,
+    level,
     transports: [
       transport,
     ],

@@ -1,4 +1,4 @@
-import * as BluePromise from 'bluebird'
+import bluebird = require('bluebird')
 import { createLog } from '../common/log'
 
 const log = createLog('handles')
@@ -12,7 +12,7 @@ const sequelizeHandle = {
       const result = await Reflect.apply(origMethod, target, args)
       const useTime = Date.now() - start
       log.info(`It takes ${useTime} ms to executing the sql: ${args[0]}`)
-      return BluePromise.resolve(result)
+      return bluebird.resolve(result)
     }
     return func
   },

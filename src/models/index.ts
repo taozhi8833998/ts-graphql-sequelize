@@ -2,12 +2,16 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as Sequelize from 'sequelize'
 import { createLog } from '../common/log'
+import { IDb } from '../common/utils'
 import { getConnect } from '../core/connector'
 import etc from '../etc'
 
 const log = createLog('model')
 const BASE_NAME = path.basename(__filename)
-const db: { [name: string]: any } = {}
+const db: IDb = {
+  Sequelize,
+  sequelize: null,
+}
 
 const sequelize = getConnect(etc.mysql)
 fs.readdirSync(__dirname)
@@ -18,15 +22,14 @@ fs.readdirSync(__dirname)
   })
 
 Object.keys(db).forEach((modelName: string) => {
-  const associate = db[modelName].associate
+  const associate = db[modelName] && db[modelName].associate
   if (associate && typeof associate === 'function') Reflect.apply(associate, null, [db])
 })
 
 sequelize.sync()
-  .then(() => log.info('init model successfully'))
-  .catch((err: Error) => log.error('init model failed = ', err))
+  .then(() => log.info('====init model successfully===='))
+  .catch((err: Error) => log.error('init model failed = %o', err))
 
 db.sequelize = sequelize
-db.Sequelize = Sequelize
 
 export default db

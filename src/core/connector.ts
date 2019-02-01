@@ -1,9 +1,11 @@
 import * as Boom from 'boom'
 import * as Sequelize from 'sequelize'
+import { createLog } from '../common/log'
 import etc from '../etc'
 import { sequelizeHandle } from './handles'
 import * as conn from './pool'
 
+const log = createLog('connector')
 interface IConnInfo {
   database: string,
   dialect?: string
@@ -36,7 +38,7 @@ const getConnect = ({
   }
   sequelize = conn.get(database, user, password, host, port, dialect)
   if (!sequelize) {
-    const logging = etc.logging || false
+    const logging = etc.logging && log.info || false
     sequelize = new Sequelize(database, user, password, {
       dialect,
       host,
