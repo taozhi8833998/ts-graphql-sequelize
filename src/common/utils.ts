@@ -21,7 +21,7 @@ const generateToken = (user: {id: number, email: string, name: string}) => {
   return jwt.sign({ id, email, name }, secret, { expiresIn })
 }
 
-const getKey = (info: any) => {
+const generateHash = (info: any) => {
   if (typeof info !== 'object') return crypto.createHash('md5').update(info).digest('hex')
   const arrayKey = (element: any[]) => crypto.createHash('md5').update(element.join('_')).digest('hex')
   if (Array.isArray(info)) return arrayKey(info)
@@ -65,8 +65,8 @@ const wrapError = (error: Error) => ({ error, isError: true })
 
 export {
   decodeToken,
+  generateHash,
   generateToken,
-  getKey,
   IContext,
   IDb,
   IUser,
