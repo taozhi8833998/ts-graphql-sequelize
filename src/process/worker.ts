@@ -4,6 +4,7 @@ import * as Boom from 'boom'
 import * as cookieParser from 'cookie-parser'
 import * as cors from 'cors'
 import * as express from 'express'
+import { GraphQLError, GraphQLFormattedError } from 'graphql'
 import * as helmet from 'helmet'
 import * as path from 'path'
 import * as serveFavicon from 'serve-favicon'
@@ -71,9 +72,9 @@ const server = new ApolloServer({
       res,
     }
   },
-  formatError(error: Error) {
+  formatError(error: GraphQLError): GraphQLFormattedError {
     log.error('GraphQL Error = %s', JSON.stringify(error, null, 2))
-    return { message: error.message }
+    return { message: error.message } as GraphQLFormattedError
   },
   resolvers,
   typeDefs: gql(schemas),
