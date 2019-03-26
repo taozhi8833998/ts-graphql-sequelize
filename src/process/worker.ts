@@ -6,10 +6,12 @@ import * as cors from 'cors'
 import * as express from 'express'
 import { GraphQLError, GraphQLFormattedError } from 'graphql'
 import * as helmet from 'helmet'
+import * as jwt from 'jsonwebtoken'
 import * as path from 'path'
 import * as serveFavicon from 'serve-favicon'
-import { createLog } from '../common/log'
+import { createLog, logMiddleware } from '../common/log'
 import * as utils from '../common/utils'
+import acl from '../ctrl/acl'
 import etc from '../etc'
 import models from '../models'
 import resolvers from '../resolvers'
@@ -26,7 +28,7 @@ const corsOptions = {
 app.disable('x-powered-by')
 app.use(helmet())
 app.use('/admin', express.static(path.join(etc.public, 'backend')))
-app.use('/qinglan', express.static(path.join(etc.public, 'frontend')))
+app.use('/frontend', express.static(path.join(etc.public, 'frontend')))
 app.use(express.static(path.join(etc.public, 'frontend')))
 app.use(express.static(path.join(etc.public, 'backend')))
 app.use(serveFavicon(path.join(etc.public, 'favicon.ico')))
@@ -37,7 +39,6 @@ app.use(cors())
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-// app.use(logMiddleware('access'))
 app.options(['/graphql', '/upload'], (req, res) => {
   res.set({
     'Access-Control-Allow-Credentials': true,
@@ -47,22 +48,21 @@ app.options(['/graphql', '/upload'], (req, res) => {
   })
   res.status(200).end()
 })
-
-// app.use(async (req, res, next) => {
-//   const { token } = req.cookies
-//   try {
-//     const decode = await decodeToken(token)
-//     req.user = decode
-//     next()
-//   } catch (e) {
-//     req.user = undefined
-//     res
-        // .status(500)
-        // .json({ isError: true, error: helper.makeError('LOGIN_EXPIRE_ERROR', 'login expired, please relogin') })
-//   }
-// })
-// app.use(acl())
-
+app.use(async (req, res, next) => {
+  if (/^\/v\d+\/ganjiang.*$/.test(req.path)) return next()
+  const { token } = req.cookies
+  try {
+    const decode = await jwt.verify(token, etc.jwt.secret);
+    (req as any).user = decode
+    next()
+  } catch (e) {
+    (req as any).user = undefined
+    const error = Boom.unauthorized('token has expired, please refresh')
+    res.status(500).json(utils.wrapError(error))
+  }
+})
+app.use(/^\/v\d+\/ganjiang.*$/, acl())
+app.use(logMiddleware('access'))
 const server = new ApolloServer({
   context({ req, res }: { req: express.Request, res: express.Response }) {
     return {
@@ -78,10 +78,9 @@ const server = new ApolloServer({
   },
   resolvers,
   typeDefs: gql(schemas),
-
 })
 server.applyMiddleware({ app, cors: corsOptions })
-app.use((error: Error | Boom, req: express.Request, res: express.Response) => {
+app.use((error: Error | Boom, req: express.Request, res: express.Response, next: express.NextFunction) => {
   res.status(500).json(utils.wrapError(error))
 })
 

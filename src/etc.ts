@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs'
 import { safeLoad } from 'js-yaml'
-import * as _ from 'lodash'
+import { merge } from 'lodash'
 import { join } from 'path'
 
 const defaultPath: string = join(__dirname, '../etc/config.default.yaml')
@@ -27,6 +27,6 @@ const getRuntimeEnv: () => object = () => {
   }
 }
 
-const etc: object = _.merge({}, defaultEtc, getEnvCfg(), getRuntimeEnv())
+const etc: object = merge({}, defaultEtc, getEnvCfg(), getRuntimeEnv())
 
 export default etc as any

@@ -1,3 +1,4 @@
+import * as Boom from 'boom'
 import * as crypto from 'crypto'
 import * as express from 'express'
 import * as jwt from 'jsonwebtoken'
@@ -61,7 +62,10 @@ const parseJSON = (data: string, defaultValue = {}) => {
   }
 }
 
-const wrapError = (error: Error) => ({ error, isError: true })
+const wrapError = (error: Error | Boom) => {
+  if (Boom.isBoom(error)) return { error   : error.output.payload, isError : true }
+  return { error, isError: true }
+}
 
 export {
   decodeToken,

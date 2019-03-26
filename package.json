@@ -9,7 +9,7 @@
     "copy-schemas": "cpx src/schemas/*.graphql lib/schemas/",
     "build": "rm -rf lib && npm run lint && tsc && npm run copy-schemas",
     "cover": "npm run lint && nyc report --reporter=text-lcov | coveralls",
-    "start": "npm run build && node bin/starter.js"
+    "start": "npm run build && node -r dotenv/config bin/starter.js dotenv_config_path=.env"
   },
   "pre-commit": "test",
   "repository": {
@@ -33,6 +33,7 @@
     "@types/bluebird": "^3.5.25",
     "@types/boom": "^7.2.1",
     "@types/cookie-parser": "^1.4.1",
+    "@types/cryptiles": "^3.1.0",
     "@types/express": "^4.16.1",
     "@types/graphql": "^14.0.5",
     "@types/helmet": "^0.0.42",
@@ -43,8 +44,10 @@
     "@types/sequelize": "^4.27.34",
     "@types/serve-favicon": "^2.2.30",
     "chai": "^4.2.0",
+    "chalk": "^2.4.2",
     "coveralls": "^3.0.2",
     "cpx": "^1.5.0",
+    "dotenv": "^7.0.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "pre-commit": "^1.2.2",
@@ -65,7 +68,7 @@
     "graphql": "^14.1.1",
     "helmet": "^3.15.0",
     "js-yaml": "^3.12.1",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.11",
     "merge-graphql-schemas": "^1.5.8",
     "moment": "^2.24.0",

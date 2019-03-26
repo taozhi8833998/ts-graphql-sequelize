@@ -11,3 +11,4 @@ out
 .dockerignore
 makefile
 .vscode
+.env

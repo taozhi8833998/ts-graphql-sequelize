@@ -3,7 +3,7 @@
 const path = require('path')
 const os = require('os')
 const SIGNALS = os.constants.signals
-require(path.join(__dirname, '../lib/process', process.argv[2] || 'worker'))
+require(path.join(__dirname, '../lib/process', 'worker'))
 
 const listenSignals = [SIGNALS.SIGTERM, SIGNALS.SIGINT, SIGNALS.SIGQUIT]
 listenSignals.forEach(signal => {
