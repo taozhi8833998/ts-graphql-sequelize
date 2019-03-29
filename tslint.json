@@ -12,6 +12,15 @@
 			true,
 			120
 		],
+		"import-name": [
+			true,
+			{
+				"pod": "KubernetesPod",
+				"service": "KubernetesService",
+				"kubernetes": "k8sClient"
+			}
+		],
+		"object-shorthand-properties-first": false,
 		"only-arrow-functions": false
 	},
 	"rulesDirectory": []

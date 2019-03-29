@@ -1,8 +1,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as Sequelize from 'sequelize'
+import { IDb } from '../common/interfaces'
 import { createLog } from '../common/log'
-import { IDb } from '../common/utils'
 import { getConnect } from '../core/connector'
 import etc from '../etc'
 

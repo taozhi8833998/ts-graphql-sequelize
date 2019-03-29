@@ -6,12 +6,15 @@ import * as cors from 'cors'
 import * as express from 'express'
 import { GraphQLError, GraphQLFormattedError } from 'graphql'
 import * as helmet from 'helmet'
+import * as httpProxyMiddleware from 'http-proxy-middleware'
 import * as jwt from 'jsonwebtoken'
 import * as path from 'path'
 import * as serveFavicon from 'serve-favicon'
 import { createLog, logMiddleware } from '../common/log'
 import * as utils from '../common/utils'
+import { findHostByAppName } from '../core/redis'
 import acl from '../ctrl/acl'
+import router from '../ctrl/router'
 import etc from '../etc'
 import models from '../models'
 import resolvers from '../resolvers'
@@ -19,11 +22,25 @@ import schemas from '../schemas'
 
 const db = models
 const app = express()
+const routers = router(express.Router())
 const log = createLog('app')
 const corsOptions = {
   credentials: true,
   origin: 'http://localhost:3000',
 }
+const ttyOptions = {
+  pathRewrite: {
+    '^\/(.*)auth_token.js$': '/auth_token.js',
+    '^\/(.*)ws$': '/ws',
+  },
+  router(req: any) {
+    return `${req.__target__}:2222`
+  },
+  target: 'http://127.0.0.1:2222',
+  // ws: true, // proxy websockets
+}
+// create the proxy (without context)
+const ttyProxy = httpProxyMiddleware(ttyOptions)
 
 app.disable('x-powered-by')
 app.use(helmet())
@@ -39,7 +56,7 @@ app.use(cors())
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.options(['/graphql', '/upload'], (req, res) => {
+app.options(['/graphql'], (req, res) => {
   res.set({
     'Access-Control-Allow-Credentials': true,
     'Access-Control-Allow-Headers': 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With',
@@ -48,21 +65,36 @@ app.options(['/graphql', '/upload'], (req, res) => {
   })
   res.status(200).end()
 })
-app.use(async (req, res, next) => {
-  if (/^\/v\d+\/ganjiang.*$/.test(req.path)) return next()
-  const { token } = req.cookies
+// disable jwt currently
+
+// app.use(async (req, res, next) => {
+//   if (/^\/v\d+\/ganjiang.*$/.test(req.path)) return next()
+//   const { token } = req.cookies
+//   try {
+//     const decode = await jwt.verify(token, etc.jwt.secret);
+//     (req as any).user = decode
+//     next()
+//   } catch (e) {
+//     (req as any).user = undefined
+//     const error = Boom.unauthorized('token has expired, please refresh')
+//     res.status(500).json(utils.wrapError(error))
+//   }
+// })
+app.use(/^\/(.+)\/(.+)\/(?!(tty|ttyws|auth_token.js)).*$/, acl())
+app.use(logMiddleware('access'))
+app.use(['/:appType/:appName/tty', '/:appType/:appName/auth_token.js'], async (req, res, next) => {
+  const { appType, appName } = req.params
   try {
-    const decode = await jwt.verify(token, etc.jwt.secret);
-    (req as any).user = decode
+    (req as any).__target__ = await findHostByAppName(appType, appName)
     next()
-  } catch (e) {
-    (req as any).user = undefined
-    const error = Boom.unauthorized('token has expired, please refresh')
-    res.status(500).json(utils.wrapError(error))
+  } catch (error) {
+    log.error('get app failed = ', error)
+    return res.status(error.statusCode || 500).json({ isError: true, error })
   }
 })
-app.use(/^\/v\d+\/ganjiang.*$/, acl())
-app.use(logMiddleware('access'))
+
+app.use(['/:appType/:appName/tty', '/:appType/:appName/auth_token.js'], ttyProxy)
+app.use(routers)
 const server = new ApolloServer({
   context({ req, res }: { req: express.Request, res: express.Response }) {
     return {
@@ -89,7 +121,7 @@ app.use((_, res: express.Response) => {
   return res.status(error.output.statusCode).json(utils.wrapError(error))
 })
 
-app.listen(etc.http_port, etc.bind_host || '0.0.0.0', (err: Error) => {
+const expressServer = app.listen(etc.http_port, etc.bind_host || '0.0.0.0', (err: Error) => {
   if (err) log.error('Server started failed: %o', err)
   const host = etc.bind_host || '0.0.0.0'
   const port = etc.http_port
@@ -98,4 +130,16 @@ app.listen(etc.http_port, etc.bind_host || '0.0.0.0', (err: Error) => {
   } else {
     log.info(`Server running publicly. Connect to http://${host}:${port}`)
   }
+})
+
+expressServer.on('upgrade', async (req, socket, head) => {
+  const matches = req.url.split('/')
+  log.info(`upgrade to ws for ${req.url}, the matches = ${matches}`)
+  if (!matches || matches.length < 3) {
+    return log.error(`do not find the app name for ${req.url}`)
+  }
+  const appType = matches[1]
+  const appName = matches[2]
+  req.__target__ = await findHostByAppName(appType, appName)
+  if (matches[3] === 'ttyws' || matches[3] === 'tty') return (ttyProxy as any).upgrade(req, socket, head)
 })

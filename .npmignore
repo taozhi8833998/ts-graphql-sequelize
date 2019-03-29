@@ -10,3 +10,5 @@ test/
 .editorconfig
 .travis.yml
 .env
+.env.json
+.env.*

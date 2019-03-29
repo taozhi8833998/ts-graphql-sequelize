@@ -2,20 +2,25 @@ import chalk from 'chalk'
 import * as express from 'express'
 import * as mo from 'moment'
 import * as winston from 'winston'
+import * as winstonDailyRotateFile from 'winston-daily-rotate-file'
 import etc from '../etc'
 
+(winston.transports as any).DailyRotateFile = winstonDailyRotateFile
 const logs: { [name: string]: winston.Logger } = {}
 const {
   log_levels,
   log_stdio,
   log_folder,
 } = etc as any
+const colorList: any = {}
 
 const colorful = (str: string) => {
   if (!log_stdio) return str
+  if (colorList[str]) return chalk.rgb(colorList[str].red, colorList[str].green, colorList[str].blue)(str)
   const red = Math.floor(Math.random() * 255)
   const green = Math.floor(Math.random() * 255)
   const blue = Math.floor(Math.random() * 255)
+  colorList[str] = { red, green, blue }
   return chalk.rgb(red, green, blue)(str)
 }
 
@@ -41,8 +46,8 @@ const createFileLog = (name: string) => {
     datePattern: 'YYYY-MM-DD',
     dirname: log_folder,
     filename: `${name}-%DATE%.log`,
-    maxFiles: 3,
-    maxsize: 256,
+    maxFiles: '3d',
+    maxSize: '256m',
     zippedArchive: true,
   })
   const format = winston.format.combine(
@@ -85,9 +90,10 @@ const logMiddleware = (name: string) => {
       const referer = req.headers.referer || req.headers.refferer || '-'
       const userAgent = req.headers['User-Agent'] || '-'
       const status = res.statusCode
+      const user = (req as any).user && (req as any).user.id || '-'
       const body = JSON.stringify(req.body) || ''
       const part = `\"${method} ${url}\" ${status} ${useTime} \"${referer}\" \"${userAgent}\"`
-      const info = `${ip} ${process.pid} ${part} \"${body}\"`
+      const info = `${user} :: ${ip} ${process.pid} ${part} \"${body}\"`
       log.info(info)
     }
     res.on('close', logAccess)

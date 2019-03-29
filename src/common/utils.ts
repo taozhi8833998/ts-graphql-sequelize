@@ -3,6 +3,7 @@ import * as crypto from 'crypto'
 import * as express from 'express'
 import * as jwt from 'jsonwebtoken'
 import * as Sequelize from 'sequelize'
+import { IRedisPrefix } from '../common/interfaces'
 import etc from '../etc'
 
 const SECRET_KEY = etc.SECRET_KEY
@@ -37,23 +38,6 @@ const getValueByKeys = (keys: string[], originObj: any, defaultValue = null) => 
   return keys.reduce((obj, key) => (obj && obj[key] != null) ? obj[key] : defaultValue, originObj)
 }
 
-interface IDb {
-  sequelize: Sequelize.Instance<any> | null,
-  Sequelize: any,
-  [name: string]: any,
-}
-
-interface IContext {
-  db: IDb,
-  req: express.Request,
-  res: express.Response,
-}
-
-interface IUser {
-  name: string,
-  password: string,
-}
-
 const parseJSON = (data: string, defaultValue = {}) => {
   try {
     return JSON.parse(data)
@@ -67,14 +51,19 @@ const wrapError = (error: Error | Boom) => {
   return { error, isError: true }
 }
 
+const REDIS_PREFIX_MAP: IRedisPrefix = {
+  'dev-tool' :   'dt:',
+  devtool    :   'dt:',
+  ganjiang   :   'gj:',
+  moye       :   'my:',
+}
+
 export {
   decodeToken,
   generateHash,
   generateToken,
-  IContext,
-  IDb,
-  IUser,
   getValueByKeys,
+  REDIS_PREFIX_MAP,
   parseJSON,
   wrapError,
 }

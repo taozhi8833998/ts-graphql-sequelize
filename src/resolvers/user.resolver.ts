@@ -1,7 +1,8 @@
 import { AuthenticationError, UserInputError } from 'apollo-server-express'
 import * as Sequelize from 'sequelize'
+import { IContext, IUser } from '../common/interfaces'
 import { createLog } from '../common/log'
-import { decodeToken, generateToken, IContext, IUser } from '../common/utils'
+import { decodeToken, generateToken } from '../common/utils'
 
 const log = createLog('user_resolver')
 

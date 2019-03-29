@@ -1,5 +1,4 @@
 -INIT_DIRS := out out/release
--BIN_BABEL := ./node_modules/.bin/babel
 PWD := `pwd`
 
 clean:
@@ -17,11 +16,14 @@ install:
 
 release: -common-pre
 	@echo 'make release begin'
+	@npm run build
 	@rsync -av . ./out/release --exclude-from .rsyncignore
-	@if [ "${env}" != "default" ] ; \
-	then \
-		${-BIN_BABEL} out/release/lib -d out/release/lib-dist ; \
-		cd ${PWD}/out/release && cp -r lib/schemas/*.graphql lib-dist/schemas/ && rm -rf lib && mv lib-dist lib ; \
-	fi
 	cp ./out/release/etc/config.${env}.yaml ./out/release/etc/config.yaml
 	@echo 'make release done'
+
+build: release
+	docker build -t ${name} .
+
+publish: build
+	docker tag ${name} registry.cn-hangzhou.aliyuncs.com/citybrain/${name}:latest
+	docker push registry.cn-hangzhou.aliyuncs.com/citybrain/${name}

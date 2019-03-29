@@ -4,6 +4,14 @@ cipher_encoding: base64
 encrypt_algorithm: aes-256-ctr
 env: 1
 http_port: 8000
+image_prefix: ''
+k8s_cfg:
+  url: ''
+  auth: null
+  ca: ''
+  insecureSkipTlsVerify: true
+  key: ''
+  cert: ''
 mysql:
   host: host
   port: 3306
@@ -17,7 +25,24 @@ log_folder: ../../logs
 logging: true
 log_levels: [debug, info, warn, error]
 log_stdio: true
+oss:
+  endpoint: ''
+  accessKeyId: ''
+  accessKeySecret: ''
 plain_encoding: utf8
+preview:
+  host: ''
 public: './public'
+redis:
+  host: ''
+  port: ''
+  password: ''
+  db: 0
 saltRounds: 10
+sidecar:
+  image_url: ''
+  port: ''
+smash:
+  host: ''
+  url: ''
 secret_key: your_secret_key

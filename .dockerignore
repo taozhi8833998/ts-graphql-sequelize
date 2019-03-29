@@ -4,7 +4,6 @@ coverage
 *.log
 logs
 run
-out
 .rsyncignore
 .gitignore
 .git
@@ -14,11 +13,7 @@ makefile
 .env
 .env.json
 .env.*
-test
-.nycrc
-.nyc_output
 src
-.npmignore
+test
+.nyc_output
 .travis.yml
-tslint.json
-tsconfig.json

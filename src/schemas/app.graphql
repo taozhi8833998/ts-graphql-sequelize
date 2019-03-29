@@ -1,0 +1,27 @@
+type Preview {
+  host: String!
+}
+type App {
+  bucket: String
+  language: String!
+  name: String!
+  template: String!
+  token: String!
+  type: String!
+  preview: Preview
+}
+
+type Mutation {
+  createApp (
+    bucket: String
+    language: String!
+    name: String!
+    template: String!
+    token: String!
+    type: String!
+  ): App!
+  deleteApp(
+    language: String!
+    name: String!
+  ): String
+}

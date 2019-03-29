@@ -1,24 +1,12 @@
 import * as Boom from 'boom'
 import * as Sequelize from 'sequelize'
+import { IConnInfo } from '../common/interfaces'
 import { createLog } from '../common/log'
 import etc from '../etc'
 import { sequelizeHandle } from './handles'
 import * as conn from './pool'
 
 const log = createLog('connector')
-interface IConnInfo {
-  database: string,
-  dialect?: string
-  host: string,
-  password: string
-  port?: number
-  user: string,
-  pool?: {
-    idle?: number,
-    max?: number,
-    min?: number,
-  }
-}
 
 const getConnect = ({
   database,
