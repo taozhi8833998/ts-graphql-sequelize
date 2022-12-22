@@ -72,7 +72,7 @@
     "http-proxy-middleware": "^0.19.1",
     "ioredis": "^4.9.0",
     "js-yaml": "^3.13.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "kubernetes-client": "^6.11.1",
     "lodash": "^4.17.13",
     "merge-graphql-schemas": "^1.5.8",
